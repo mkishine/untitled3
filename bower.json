@@ -1,0 +1,23 @@
+{
+  "name": "untitled3",
+  "authors": [
+    "mkishine <mkishine@yahoo.com>"
+  ],
+  "description": "random collection of test pages",
+  "main": "index.html",
+  "moduleType": [
+    "node"
+  ],
+  "keywords": [
+    "none"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

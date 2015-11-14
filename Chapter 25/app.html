@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html ng-app="exampleApp">
+<head>
+    <title>Example</title>
+    <script src="angular.js"></script>
+    <script src="app.js"></script>
+    <link href="bootstrap.css" rel="stylesheet" />
+    <link href="bootstrap-theme.css" rel="stylesheet" />
+</head>
+<body ng-controller="defaultCtrl">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <p>Counter: {{counter}}</p>
+            <p>
+                <button class="btn btn-primary" ng-click="incrementCounter()">Increment</button>
+            </p>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th ng-repeat="key in productAttributes">{{key}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="product in products" ng-class-odd="'odd'" ng-class-even="'even'">
+            <td ng-repeat="attribute in productAttributes">{{product[attribute]}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="panel-body">
+        <p>Interval Counter: {{intervalCounter}}</p>
+        <p>Timer Counter: {{timerCounter}}</p>
+        <p>Label Case: {{"hello" | labelCase }}</p>
+        <p>Inverted Label Case: {{"hello" | labelCase:true }}</p>
+    </div>
+
+</body>
+</html>
