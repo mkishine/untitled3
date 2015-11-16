@@ -18,6 +18,14 @@ gulp.task('test_app', function (done) {
     }, done).start();
 });
 
+gulp.task('test_all', function (done) {
+    new Server({
+        configFile: __dirname + '/karma.config.js',
+        singleRun: true
+    }, done).start();
+});
+
+
 /**
  * Watch for file changes and re-run tests on each change
  */
@@ -30,6 +38,12 @@ gulp.task('tdd_ch25', function (done) {
 gulp.task('tdd_app', function (done) {
     new Server({
         configFile: __dirname + '/angularjs-docs-api/ng-directive-ngController/karma.config.js'
+    }, done).start();
+});
+
+gulp.task('tdd_all', function (done) {
+    new Server({
+        configFile: __dirname + '/karma.config.js'
     }, done).start();
 });
 
