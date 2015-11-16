@@ -11,32 +11,38 @@ gulp.task('test_ch25', function (done) {
     }, done).start();
 });
 
+gulp.task('test_app', function (done) {
+    new Server({
+        configFile: __dirname + '/angularjs-docs-api/ng-directive-ngController/karma.config.js',
+        singleRun: true
+    }, done).start();
+});
+
 /**
  * Watch for file changes and re-run tests on each change
  */
-gulp.task('tdd', function (done) {
+gulp.task('tdd_ch25', function (done) {
     new Server({
         configFile: __dirname + '/Chapter 25/karma.config.js'
     }, done).start();
 });
 
-// gulp.task('default', ['tdd']);
-var http = require('http');
-var connect = require('gulp-connect');
-var proxyMiddleware = require('http-proxy-middleware');                      // require('http-proxy-middleware');
-
-gulp.task('connect', function() {
-    // configure proxy middleware
-    // context: '/' will proxy all requests
-    //     use: '/api' to proxy request when path starts with '/api'
-    var proxy = proxyMiddleware('/api', {
-        target: 'http://www.example.org',
-        changeOrigin: true   // for vhosted sites, changes host header to match to target's host
-    });
-    var app = connect();
-    app.use(proxy);                      // add the proxy to connect
-    http.createServer(app).listen(3000);
+gulp.task('tdd_app', function (done) {
+    new Server({
+        configFile: __dirname + '/angularjs-docs-api/ng-directive-ngController/karma.config.js'
+    }, done).start();
 });
 
+// gulp.task('default', ['tdd']);
+var browserSync = require('browser-sync').create();
 
-gulp.task('default', ['connect']);
+// Static server
+gulp.task('browser-sync', function() {
+    browserSync.init({
+        server: {
+            baseDir: "./"
+        },
+        files: "index.html",
+        logLevel: "debug"
+    });
+});
