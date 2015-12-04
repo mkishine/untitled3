@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html ng-app="exampleApp">
+<head>
+    <title>Example</title>
+    <script src="angular.js"></script>
+    <script src="app.js"></script>
+</head>
+<body ng-controller="defaultCtrl">
+    <table>
+        <thead>
+        <tr>
+            <th ng-repeat="key in productAttributes">{{key}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="product in products"">
+            <td ng-repeat="attribute in productAttributes">{{product[attribute]}}</td>
+        </tr>
+        </tbody>
+    </table>
+</body>
+</html>

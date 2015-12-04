@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AngularJS Demo</title>
+    <script src="angular.js"></script>
+    <script>
+        var myApp = angular.module("exampleApp", []);
+        myApp.service("myService", function () {
+            console.log("myService");
+            this.value = 0;
+            this.obj = {data: 0};
+        });
+        myApp.factory('myFactory', function () {
+            console.log("myFactory");
+            return {value: 100, obj: {data: 100}};
+        });
+        myApp.controller("myController", function ($scope, myService, myFactory) {
+            console.log("myController");
+            myService.value++;
+            myFactory.value++;
+            myService.obj.data++;
+            myFactory.obj.data++;
+            $scope.serviceValue = myService.value;
+            $scope.factoryValue = myFactory.value;
+            $scope.serviceObj = myService.obj;
+            $scope.factoryObj = myFactory.obj;
+
+        });
+        myApp.controller("myOtherController", function ($scope, myService, myFactory) {
+            console.log("myOtherController");
+            myService.value++;
+            myFactory.value++;
+            myService.obj.data++;
+            myFactory.obj.data++;
+            $scope.serviceValue = myService.value;
+            $scope.factoryValue = myFactory.value;
+            $scope.serviceObj = myService.obj;
+            $scope.factoryObj = myFactory.obj;
+
+        });
+    </script>
+</head>
+<body ng-app="exampleApp">
+<div ng-controller="myController">myController {{serviceValue}} {{factoryValue}} {{serviceObj.data}} {{factoryObj.data}}</div>
+<div ng-controller="myController">myController {{serviceValue}} {{factoryValue}} {{serviceObj.data}} {{factoryObj.data}}</div>
+<div ng-controller="myOtherController">myOtherController {{serviceValue}} {{factoryValue}} {{serviceObj.data}} {{factoryObj.data}}</div>
+<div ng-controller="myOtherController">myOtherController {{serviceValue}} {{factoryValue}} {{serviceObj.data}} {{factoryObj.data}}</div>
+</body>
+</html>

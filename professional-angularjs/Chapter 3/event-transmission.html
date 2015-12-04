@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <title>Professional AngularJS, Chapter 3, Event Tramsission, Page 101</title>
+    <script src="jquery.js"></script>
+    <script src="angular.js"></script>
+</head>
+<body ng-controller="InfiniteScrollController">
+<script>
+    var app = angular.module("app", []);
+    app.run(function ($rootScope, $log) {
+        var lastCheck = 0;
+        var INTERVAL_TO_CHECK = 500; // Only check every half second
+        var check = function () {
+            if (Date.now() - lastCheck < INTERVAL_TO_CHECK) {
+                return;
+            }
+            lastCheck = Date.now();
+            $log.log("check " + $(window).scrollTop() + " " + $(document).height() + " " + $(window).height());
+            if ($(window).scrollTop() >= $(document).height() - $(window).height() - 50) {
+                $log.log("broadcast SCROLL_TO_BOTTOM");
+                $rootScope.$broadcast('SCROLL_TO_BOTTOM');
+            }
+        }
+        setTimeout(function () {
+            check();
+        }, 0);
+        $(window).on('scroll', check);
+        $(window).on('resize', check);
+    });
+    app.controller('InfiniteScrollController', function ($scope, $log) {
+        $scope.$on('SCROLL_TO_BOTTOM', function () {
+            $log.log("scop on SCROLL_TO_BOTTOM");
+            $scope.$apply();
+        });
+    });
+</script>
+</body>
+</html>
