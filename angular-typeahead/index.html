@@ -14,15 +14,14 @@
 </head>
 
 <body ng-controller="MainCtrl">
-<p>Model Non Editable: {{selectedNumberNonEditable|json}} </p>
-<input class='typeahead'
-       type="text"
-       sf-typeahead
-       options="exampleOptionsNonEditable"
-       datasets="numbersDataset"
-       ng-model="selectedNumberNonEditable">
+<p>Model: {{selectedNumber|json}}</p>
+<input class='typeahead' type="text" sf-typeahead options="exampleOptions" datasets="numbersDataset" ng-model="selectedNumber">
+<p>Model Non Editable: {{selectedNumberNonEditable|json}}</p>
+<input class='typeahead' type="text" sf-typeahead options="exampleOptionsNonEditable" datasets="numbersDataset" ng-model="selectedNumberNonEditable">
 <br>
 <br>
+<button type="button" ng-click="addValue()">Add 'twenty' to the dataset</button>
+<button type="button" ng-click="setValue()">Set value (two-way demo)</button>
 <button type="button" ng-click="clearValue()">Clear value to null</button>
 </body>
 
