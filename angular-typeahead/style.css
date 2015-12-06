@@ -82,3 +82,8 @@
 .tt-suggestion p {
     margin: 0;
 }
+
+.tt-menu {
+    max-height: 60px;
+    overflow-y: auto;
+}
