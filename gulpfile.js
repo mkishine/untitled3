@@ -25,7 +25,19 @@ gulp.task('test_all', function (done) {
     }, done).start();
 });
 
+gulp.task('test_jasmine_docs', function (done) {
+    new Server({
+        configFile: __dirname + '/jasmine-docs/karma.config.js',
+        singleRun: true
+    }, done).start();
+});
 
+gulp.task('test_simple_highcharts_directive', function (done) {
+    new Server({
+        configFile: __dirname + '/simple-highcharts-directive/karma.config.js',
+        singleRun: true
+    }, done).start();
+});
 /**
  * Watch for file changes and re-run tests on each change
  */
@@ -47,6 +59,17 @@ gulp.task('tdd_all', function (done) {
     }, done).start();
 });
 
+gulp.task('tdd_jasmine_docs', function (done) {
+    new Server({
+        configFile: __dirname + '/jasmine-docs/karma.config.js',
+    }, done).start();
+});
+
+gulp.task('tdd_simple_highcharts_directive', function (done) {
+    new Server({
+        configFile: __dirname + '/simple-highcharts-directive/karma.config.js',
+    }, done).start();
+});
 // gulp.task('default', ['tdd']);
 var browserSync = require('browser-sync').create();
 
