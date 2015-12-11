@@ -1,11 +1,8 @@
-function MyCtrl($scope, limitToFilter) {
+function MyCtrl($scope) {
     $scope.ideas = [
         ['ideas1', 1],
-        ['ideas2', 8],
-        ['ideas3', 5]
+        ['ideas2', 8]
     ];
-
-    $scope.limitedIdeas = limitToFilter($scope.ideas, 2);
 }
 
 angular.module('myApp', [])
@@ -22,7 +19,6 @@ angular.module('myApp', [])
             },
             template: '<div id="container" style="margin: 0 auto">not working</div>',
             link: function (scope, element, attrs) {
-                console.log(3);
                 var chart = new Highcharts.Chart({
                     chart: {
                         renderTo: 'container',
@@ -54,11 +50,12 @@ angular.module('myApp', [])
                     series: [{
                         type: 'pie',
                         name: 'Browser share',
-                        data: scope.items
+                        data: angular.copy(scope.items)
                     }]
                 });
+
                 scope.$watch("items", function (newValue) {
-                    chart.series[0].setData(newValue, true);
+                    chart.series[0].setData(angular.copy(newValue), true);
                 }, true);
 
             }
