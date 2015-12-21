@@ -1,21 +1,19 @@
-function MyCtrl($scope) {
-    $scope.ideas = [
-        ['ideas1', 1],
-        ['ideas2', 8]
-    ];
-}
-
-angular.module('myApp', [])
-    .directive('hcPie', function () {
+(function () {
+    'use strict';
+    var app = angular.module('myApp', []);
+    app.controller('myCtrl', function(){
+        var vm = this;
+        vm.ideas = [
+            ['ideas1', 1],
+            ['ideas2', 8]
+        ];
+    });
+    app.directive('hcPie', function () {
         return {
             restrict: 'C',
             replace: true,
             scope: {
                 items: '='
-            },
-            controller: function ($scope, $element, $attrs) {
-                console.log(2);
-
             },
             template: '<div id="container" style="margin: 0 auto">not working</div>',
             link: function (scope, element, attrs) {
@@ -61,3 +59,4 @@ angular.module('myApp', [])
             }
         }
     });
+})();
