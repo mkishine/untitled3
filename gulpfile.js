@@ -38,6 +38,14 @@ gulp.task('test_simple_highcharts_directive', function (done) {
         singleRun: true
     }, done).start();
 });
+
+gulp.task('test_mocks_in_jasmine_tests', function (done) {
+    new Server({
+        configFile: __dirname + '/mocks-in-jasmine-tests/karma.config.js',
+        singleRun: true
+    }, done).start();
+});
+
 /**
  * Watch for file changes and re-run tests on each change
  */
@@ -61,13 +69,13 @@ gulp.task('tdd_all', function (done) {
 
 gulp.task('tdd_jasmine_docs', function (done) {
     new Server({
-        configFile: __dirname + '/jasmine-docs/karma.config.js',
+        configFile: __dirname + '/jasmine-docs/karma.config.js'
     }, done).start();
 });
 
 gulp.task('tdd_simple_highcharts_directive', function (done) {
     new Server({
-        configFile: __dirname + '/simple-highcharts-directive/karma.config.js',
+        configFile: __dirname + '/simple-highcharts-directive/karma.config.js'
     }, done).start();
 });
 // gulp.task('default', ['tdd']);
