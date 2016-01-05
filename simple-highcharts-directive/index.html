@@ -9,10 +9,10 @@
 </head>
 <body>
 <div ng-app="myApp">
-    <div ng-controller="MyCtrl">
-        <input name="firstItem" class="form-control" ng-model="ideas[0][1]"/>
-        {{ideas}}
-        <div class="hc-pie" items="ideas"></div>
+    <div ng-controller="myCtrl as ctrl">
+        <input name="firstItem" class="form-control" ng-model="ctrl.ideas[0][1]"/>
+        {{ctrl.ideas}}
+        <div class="hc-pie" items="ctrl.ideas"></div>
     </div>
 </div>
 </body>
