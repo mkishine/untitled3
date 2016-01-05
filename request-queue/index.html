@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html ng-app="exampleApp">
+<head>
+    <title>Request Queue</title>
+    <script src="angular.js"></script>
+    <script src="angular-mocks.js"></script>
+    <script>
+        angular.module("exampleApp", ["ngMockE2E"])
+                // delay code is borrowed from
+                // https://endlessindirection.wordpress.com/2013/05/18/angularjs-delay-response-from-httpbackend/
+                // Also see
+                // http://plnkr.co/edit/lj9srM2KXZmwmTxLb1p7?p=preview
+                .config(function ($provide) {
+                    $provide.decorator('$httpBackend', function ($delegate) {
+                        var proxy = function (method, url, data, callback, headers) {
+                            var interceptor = function () {
+                                var _this = this,
+                                        _arguments = arguments;
+                                setTimeout(function () {
+                                    callback.apply(_this, _arguments);
+                                }, 700);
+                            };
+                            return $delegate.call(this, method, url, data, interceptor, headers);
+                        };
+                        for (var key in $delegate) {
+                            proxy[key] = $delegate[key];
+                        }
+                        return proxy;
+                    });
+                })
+                .run(function ($httpBackend) {
+                    console.log('calling whenGET');
+                    $httpBackend.whenGET('index.html').respond(function () {
+                        return [200, '', {}];
+                    });
+                })
+                .controller("defaultCtrl", function ($scope, $http) {
+                    $scope.items = [];
+                    var pageLoadTime = Date.now();
+                    var update = function (label) {
+                        $scope.items.push(label + ' ' + (Date.now() - pageLoadTime));
+                        while ($scope.items.length > 10) {
+                            $scope.items.shift();
+                        }
+                    }
+                    $scope.buttonClicked = function () {
+                        update("Click");
+                        $http.get("index.html").then(function () {
+                            update("Success");
+                        }, function () {
+                            update("Error");
+                        });
+                    }
+                });
+    </script>
+</head>
+<body ng-controller="defaultCtrl">
+<button ng-click="buttonClicked()">Click Me</button>
+<ul>
+    <li ng-repeat="item in items">{{item}}</li>
+</ul>
+</body>
+</html>
