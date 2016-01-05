@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html ng-app="controllerAsExample">
+<head>
+    <title>AngularJS: API: ngController</title>
+    <script src="angular.js"></script>
+    <script src="app.js"></script>
+</head>
+<body>
+<div id="ctrl-as-exmpl" ng-controller="ctrl as c">
+    <button ng-click="c.click('Resolve')">Resolve</button>
+    <button ng-click="c.click('Reject')">Reject</button>
+    {{c.message}}
+</div>
+</body>
+</html>
