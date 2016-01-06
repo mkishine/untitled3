@@ -18,7 +18,7 @@
                                         _arguments = arguments;
                                 setTimeout(function () {
                                     callback.apply(_this, _arguments);
-                                }, 700);
+                                }, 1500);
                             };
                             return $delegate.call(this, method, url, data, interceptor, headers);
                         };
@@ -29,7 +29,6 @@
                     });
                 })
                 .run(function ($httpBackend) {
-                    console.log('calling whenGET');
                     $httpBackend.whenGET('index.html').respond(function () {
                         return [200, '', {}];
                     });
@@ -37,19 +36,41 @@
                 .controller("defaultCtrl", function ($scope, $http) {
                     $scope.items = [];
                     var pageLoadTime = Date.now();
+                    var nextRequest = null;
+                    var requestPending = false;
                     var update = function (label) {
-                        $scope.items.push(label + ' ' + (Date.now() - pageLoadTime));
+                        var rv = Date.now() - pageLoadTime;
+                        $scope.items.push(label + ' ' + rv);
                         while ($scope.items.length > 10) {
                             $scope.items.shift();
                         }
+                        return rv;
+                    }
+                    var sendRequest = function(config) {
+                        update("Send ("+config.clickTime+")");
+                        requestPending = true;
+                        var promise = $http.get("index.html", config);
+                        promise.then(function (response) {
+                            if ( nextRequest == null) {
+                                update("Success ("+response.config.clickTime+")");
+                            } else {
+                                sendRequest(nextRequest);
+                                nextRequest = null;
+                            }
+
+                        });
+                        promise.finally(function () {
+                            requestPending = false;
+                        });
                     }
                     $scope.buttonClicked = function () {
-                        update("Click");
-                        $http.get("index.html").then(function () {
-                            update("Success");
-                        }, function () {
-                            update("Error");
-                        });
+                        var clickTime = update("Click");
+                        var config = {clickTime:clickTime};
+                        if ( requestPending ) {
+                            nextRequest = config;
+                        } else {
+                            sendRequest(config);
+                        }
                     }
                 });
     </script>
