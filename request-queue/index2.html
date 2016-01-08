@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html ng-app="exampleApp">
+<head>
+    <title>Request Queue</title>
+    <script src="angular.js"></script>
+    <script src="angular-mocks.js"></script>
+    <script>
+        angular.module("exampleApp", ["ngMockE2E"])
+                // delay code is borrowed from
+                // https://endlessindirection.wordpress.com/2013/05/18/angularjs-delay-response-from-httpbackend/
+                // Also see
+                // http://plnkr.co/edit/lj9srM2KXZmwmTxLb1p7?p=preview
+                .config(function ($provide) {
+                    $provide.decorator('$httpBackend', function ($delegate) {
+                        var proxy = function (method, url, data, callback, headers) {
+                            var interceptor = function () {
+                                var _this = this,
+                                        _arguments = arguments;
+                                setTimeout(function () {
+                                    callback.apply(_this, _arguments);
+                                }, 1500);
+                            };
+                            return $delegate.call(this, method, url, data, interceptor, headers);
+                        };
+                        for (var key in $delegate) {
+                            proxy[key] = $delegate[key];
+                        }
+                        return proxy;
+                    });
+                })
+                .run(function ($httpBackend) {
+                    $httpBackend.whenGET('index.html').respond(function () {
+                        return [200, '', {}];
+                    });
+                })
+                .controller("defaultCtrl", function ($scope, $http, $q) {
+                    $scope.items = [];
+                    var pageLoadTime = Date.now();
+                    var update = function (label) {
+                        var rv = Date.now() - pageLoadTime;
+                        $scope.items.push(rv + ' ' + label);
+                        while ($scope.items.length > 30) {
+                            $scope.items.shift();
+                        }
+                        return rv;
+                    }
+                    var nextRequestData = null;
+                    var pendingRequest = null;
+                    var deferred = null;
+                    var sendRequest = function(config) {
+                        update("sendRequest ("+config.clickTime+")");
+                        if ( pendingRequest !== null ) {
+                            if ( deferred !== null ){
+                                update('deferred.reject 1');
+                                deferred.reject();
+                            }
+                            nextRequestData = angular.copy(config);
+                            deferred = $q.defer();
+                            return deferred.promise;
+                        } else {
+                            config.transformResponse = function (data, headers) {
+                                update("TransformResponse");
+                                if ( nextRequestData !== null ) {
+                                    data = 'ignore';
+                                }
+                                return data;
+                            };
+                            update("$http.get ("+config.clickTime+")");
+                            pendingRequest = $http.get("index.html", config);
+                            pendingRequest.finally(function () {
+                                update('pendingRequest.finally');
+                                pendingRequest = null;
+                                if ( deferred !== null ){
+                                    var d2 = deferred;
+                                    deferred = null;
+                                    var promise = sendRequest(nextRequestData);
+                                    promise.then(function (result) {
+                                        update('deferred.resolve');
+                                        d2.resolve(result);
+                                    }, function () {
+                                        update('deferred.reject 2');
+                                        d2.reject(result);
+                                    });
+                                    promise.finally(function(){
+                                        update('cleanup');
+                                        nextRequestData = null;
+                                        deferred = null;
+                                    });
+                                }
+                            });
+                            return pendingRequest;
+                        }
+                    };
+                    $scope.clearList = function () {
+                        $scope.items = [];
+                        pageLoadTime = Date.now();
+                    };
+                    $scope.buttonClicked = function () {
+                        var clickTime = update("Click");
+                        var config = {clickTime: clickTime};
+                        var promise = sendRequest(config);
+                        if (promise !== null) {
+                            promise.then(function (response) {
+                                update("Success "+response.config.clickTime+" "+response.data);
+                            }, function () {
+                                update("Error");
+                            });
+                        }
+                    };
+                    $scope.clickTwice = function() {
+                        $scope.clearList();
+                        pageLoadTime = Date.now();
+                        $scope.buttonClicked();
+                        setTimeout(function(){
+                            $scope.buttonClicked();
+                        }, 200);
+                    };
+                    $scope.clickThreeTimes = function(delay) {
+                        $scope.clearList();
+                        $scope.buttonClicked();
+                        setTimeout(function(){
+                            $scope.buttonClicked();
+                            setTimeout(function(){
+                                $scope.buttonClicked();
+                            }, delay);
+                        }, delay);
+                    };
+
+                });
+    </script>
+</head>
+<body ng-controller="defaultCtrl">
+<button ng-click="clearList()">Clear</button>
+<button ng-click="buttonClicked()">Click Once</button>
+&nbsp;
+<button ng-click="clickTwice()">Click Twice</button>
+<button ng-click="clickThreeTimes(200)">Click Three Times Fast</button>
+<button ng-click="clickThreeTimes(1000)">Click Three Times Slow</button>
+<ul>
+    <li ng-repeat="item in items">{{item}}</li>
+</ul>
+</body>
+</html>
