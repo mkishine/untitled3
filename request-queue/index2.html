@@ -22,9 +22,7 @@
                             };
                             return $delegate.call(this, method, url, data, interceptor, headers);
                         };
-                        for (var key in $delegate) {
-                            proxy[key] = $delegate[key];
-                        }
+                        proxy.whenGET = $delegate.whenGET;
                         return proxy;
                     });
                 })
@@ -35,7 +33,13 @@
                 })
                 .controller("defaultCtrl", function ($scope, $http, $q) {
                     $scope.items = [];
+                    $scope.showDetails = false;
                     var pageLoadTime = Date.now();
+                    var updatex = function (label) {
+                        if ($scope.showDetails) {
+                            update(label);
+                        }
+                    };
                     var update = function (label) {
                         var rv = Date.now() - pageLoadTime;
                         $scope.items.push(rv + ' ' + label);
@@ -43,15 +47,15 @@
                             $scope.items.shift();
                         }
                         return rv;
-                    }
+                    };
                     var nextRequestData = null;
                     var pendingRequest = null;
                     var deferred = null;
                     var sendRequest = function(config) {
-                        update("sendRequest ("+config.clickTime+")");
+                        updatex("sendRequest ("+config.clickTime+")");
                         if ( pendingRequest !== null ) {
                             if ( deferred !== null ){
-                                update('deferred.reject 1');
+                                updatex('deferred.reject 1');
                                 deferred.reject();
                             }
                             nextRequestData = angular.copy(config);
@@ -59,8 +63,8 @@
                             return deferred.promise;
                         } else {
                             config.transformResponse = function (data, headers) {
-                                update("TransformResponse");
-                                if ( nextRequestData !== null ) {
+                                updatex("TransformResponse");
+                                if ( deferred !== null ) {
                                     data = 'ignore';
                                 }
                                 return data;
@@ -68,21 +72,21 @@
                             update("$http.get ("+config.clickTime+")");
                             pendingRequest = $http.get("index.html", config);
                             pendingRequest.finally(function () {
-                                update('pendingRequest.finally');
+                                updatex('pendingRequest.finally');
                                 pendingRequest = null;
                                 if ( deferred !== null ){
                                     var d2 = deferred;
                                     deferred = null;
                                     var promise = sendRequest(nextRequestData);
                                     promise.then(function (result) {
-                                        update('deferred.resolve');
+                                        updatex('deferred.resolve');
                                         d2.resolve(result);
                                     }, function () {
-                                        update('deferred.reject 2');
+                                        updatex('deferred.reject 2');
                                         d2.reject(result);
                                     });
                                     promise.finally(function(){
-                                        update('cleanup');
+                                        updatex('cleanup');
                                         nextRequestData = null;
                                         deferred = null;
                                     });
@@ -105,6 +109,8 @@
                             }, function () {
                                 update("Error");
                             });
+                        } else {
+                            update("Error Error Error: null promise returned");
                         }
                     };
                     $scope.clickTwice = function() {
@@ -136,6 +142,8 @@
 <button ng-click="clickTwice()">Click Twice</button>
 <button ng-click="clickThreeTimes(200)">Click Three Times Fast</button>
 <button ng-click="clickThreeTimes(1000)">Click Three Times Slow</button>
+&nbsp;
+<label><input type="checkbox" ng-model="showDetails" />Show Details</label>
 <ul>
     <li ng-repeat="item in items">{{item}}</li>
 </ul>
