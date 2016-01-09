@@ -49,11 +49,11 @@
                         return rv;
                     };
                     var nextRequestData = null;
-                    var pendingRequest = null;
+                    var pendingHttpRequestPromise = null;
                     var deferred = null;
                     var sendRequest = function(config) {
                         updatex("sendRequest ("+config.clickTime+")");
-                        if ( pendingRequest !== null ) {
+                        if ( pendingHttpRequestPromise !== null ) {
                             if ( deferred !== null ){
                                 updatex('deferred.reject 1');
                                 deferred.reject();
@@ -62,7 +62,7 @@
                             deferred = $q.defer();
                             return deferred.promise;
                         } else {
-                            config.transformResponse = function (data, headers) {
+                            config.transformResponse = function (data) {
                                 updatex("TransformResponse");
                                 if ( deferred !== null ) {
                                     data = 'ignore';
@@ -70,10 +70,10 @@
                                 return data;
                             };
                             update("$http.get ("+config.clickTime+")");
-                            pendingRequest = $http.get("index.html", config);
-                            pendingRequest.finally(function () {
+                            pendingHttpRequestPromise = $http.get("index.html", config);
+                            pendingHttpRequestPromise.finally(function () {
                                 updatex('pendingRequest.finally');
-                                pendingRequest = null;
+                                pendingHttpRequestPromise = null;
                                 if ( deferred !== null ){
                                     var d2 = deferred;
                                     deferred = null;
@@ -81,9 +81,9 @@
                                     promise.then(function (result) {
                                         updatex('deferred.resolve');
                                         d2.resolve(result);
-                                    }, function () {
+                                    }, function (reason) {
                                         updatex('deferred.reject 2');
-                                        d2.reject(result);
+                                        d2.reject(reason);
                                     });
                                     promise.finally(function(){
                                         updatex('cleanup');
@@ -92,7 +92,7 @@
                                     });
                                 }
                             });
-                            return pendingRequest;
+                            return pendingHttpRequestPromise;
                         }
                     };
                     $scope.clearList = function () {
