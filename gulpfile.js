@@ -46,6 +46,12 @@ gulp.task('test_mocks_in_jasmine_tests', function (done) {
     }, done).start();
 });
 
+gulp.task('test_request_queue', function (done) {
+    new Server({
+        configFile: __dirname + '/request-queue/karma.config.js',
+        singleRun: true
+    }, done).start();
+});
 /**
  * Watch for file changes and re-run tests on each change
  */
