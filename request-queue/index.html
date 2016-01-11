@@ -4,79 +4,14 @@
     <title>Request Queue</title>
     <script src="angular.js"></script>
     <script src="angular-mocks.js"></script>
-    <script>
-        angular.module("exampleApp", ["ngMockE2E"])
-                // delay code is borrowed from
-                // https://endlessindirection.wordpress.com/2013/05/18/angularjs-delay-response-from-httpbackend/
-                // Also see
-                // http://plnkr.co/edit/lj9srM2KXZmwmTxLb1p7?p=preview
-                .config(function ($provide) {
-                    $provide.decorator('$httpBackend', function ($delegate) {
-                        var proxy = function (method, url, data, callback, headers) {
-                            var interceptor = function () {
-                                var _this = this,
-                                        _arguments = arguments;
-                                setTimeout(function () {
-                                    callback.apply(_this, _arguments);
-                                }, 1500);
-                            };
-                            return $delegate.call(this, method, url, data, interceptor, headers);
-                        };
-                        for (var key in $delegate) {
-                            proxy[key] = $delegate[key];
-                        }
-                        return proxy;
-                    });
-                })
-                .run(function ($httpBackend) {
-                    $httpBackend.whenGET('index.html').respond(function () {
-                        return [200, '', {}];
-                    });
-                })
-                .controller("defaultCtrl", function ($scope, $http) {
-                    $scope.items = [];
-                    var pageLoadTime = Date.now();
-                    var nextRequest = null;
-                    var requestPending = false;
-                    var update = function (label) {
-                        var rv = Date.now() - pageLoadTime;
-                        $scope.items.push(label + ' ' + rv);
-                        while ($scope.items.length > 10) {
-                            $scope.items.shift();
-                        }
-                        return rv;
-                    }
-                    var sendRequest = function(config) {
-                        update("Send ("+config.clickTime+")");
-                        requestPending = true;
-                        var promise = $http.get("index.html", config);
-                        promise.then(function (response) {
-                            if ( nextRequest == null) {
-                                update("Success ("+response.config.clickTime+")");
-                            } else {
-                                sendRequest(nextRequest);
-                                nextRequest = null;
-                            }
-
-                        });
-                        promise.finally(function () {
-                            requestPending = false;
-                        });
-                    }
-                    $scope.buttonClicked = function () {
-                        var clickTime = update("Click");
-                        var config = {clickTime:clickTime};
-                        if ( requestPending ) {
-                            nextRequest = config;
-                        } else {
-                            sendRequest(config);
-                        }
-                    }
-                });
-    </script>
+    <script src="app.js"></script>
 </head>
 <body ng-controller="defaultCtrl">
-<button ng-click="buttonClicked()">Click Me</button>
+<button ng-click="buttonClicked()">Click Once</button>
+&nbsp;
+<button ng-click="clickTwice()">Click Twice</button>
+<button ng-click="clickThreeTimes(200)">Click Three Times Fast</button>
+<button ng-click="clickThreeTimes(1000)">Click Three Times Slow</button>
 <ul>
     <li ng-repeat="item in items">{{item}}</li>
 </ul>
