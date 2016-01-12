@@ -3,7 +3,7 @@
     // https://endlessindirection.wordpress.com/2013/05/18/angularjs-delay-response-from-httpbackend/
     // Also see
     // http://plnkr.co/edit/lj9srM2KXZmwmTxLb1p7?p=preview
-    var useNgMockE2E = true;
+    var useNgMockE2E = typeof jasmine === 'undefined';
     function httpBackendDecorator($delegate) {
         var proxy = function (method, url, data, callback, headers) {
             var interceptor = function () {
@@ -20,6 +20,9 @@
     }
 
     function appConfig($provide) {
+        if ( !useNgMockE2E ) {
+            return;
+        }
         $provide.decorator('$httpBackend', httpBackendDecorator);
     }
 
