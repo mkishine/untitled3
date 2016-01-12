@@ -35,7 +35,7 @@
         });
     }
 
-    function defaultController($scope, requestSender) {
+    function defaultController($scope, $log, requestSender) {
         var pageLoadTime = Date.now();
         $scope.buttonClicked = function () {
             var clickTime = Date.now() - pageLoadTime;
@@ -72,15 +72,15 @@
             }, delay);
         };
     }
-    function requestSender($http, $q) {
+    function requestSender($http, $q, $log) {
         var nextRequestData = null;
         var pendingHttpRequestPromise = null;
         var deferred = null;
         this.sendRequest = function (config) {
-            console.log("sendRequest (" + config.clickTime + ")");
+            $log.log("sendRequest (" + config.clickTime + ")");
             if (pendingHttpRequestPromise !== null) {
                 if (deferred !== null) {
-                    console.log('deferred.reject 1');
+                    $log.log('deferred.reject');
                     deferred.reject();
                 }
                 nextRequestData = angular.copy(config);
@@ -88,31 +88,31 @@
                 return deferred.promise;
             } else {
                 config.transformResponse = function (data) {
-                    console.log("TransformResponse");
+                    $log.log("TransformResponse");
                     if (deferred !== null) {
                         data = 'ignore';
                     }
                     return data;
                 };
-                console.log("$http.get (" + config.clickTime + ")");
+                $log.log("$http.get (" + config.clickTime + ")");
                 pendingHttpRequestPromise = $http.get("index.html", config);
                 var requestSenderService = this;
                 pendingHttpRequestPromise.finally(function () {
-                    console.log('pendingRequest.finally');
+                    $log.log('pendingRequest.finally');
                     pendingHttpRequestPromise = null;
                     if (deferred !== null) {
                         var d2 = deferred;
                         deferred = null;
                         var promise = requestSenderService.sendRequest(nextRequestData);
                         promise.then(function (result) {
-                            console.log('deferred.resolve');
+                            $log.log('d2.resolve');
                             d2.resolve(result);
                         }, function (reason) {
-                            console.log('deferred.reject 2');
+                            $log.log('d2.reject');
                             d2.reject(reason);
                         });
                         promise.finally(function () {
-                            console.log('cleanup');
+                            $log.log('cleanup');
                             nextRequestData = null;
                             deferred = null;
                         });
