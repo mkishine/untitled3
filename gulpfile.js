@@ -84,6 +84,12 @@ gulp.task('tdd_simple_highcharts_directive', function (done) {
         configFile: __dirname + '/simple-highcharts-directive/karma.config.js'
     }, done).start();
 });
+gulp.task('tdd_request_queue', function (done) {
+    new Server({
+        configFile: __dirname + '/request-queue/karma.config.js',
+    }, done).start();
+});
+
 // gulp.task('default', ['tdd']);
 var browserSync = require('browser-sync').create();
 
