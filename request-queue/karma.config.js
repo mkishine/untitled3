@@ -67,6 +67,11 @@ module.exports = function(config) {
 
     // Concurrency level
     // how many browser should be started simultanous
-    concurrency: Infinity
+    concurrency: Infinity,
+    // Jasmine-specific options
+    client: {
+      // The pattern string will be passed to mocha
+      args: ['--grep', ''],
+    }
   })
 }
