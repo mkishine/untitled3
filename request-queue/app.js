@@ -3,7 +3,7 @@
     // https://endlessindirection.wordpress.com/2013/05/18/angularjs-delay-response-from-httpbackend/
     // Also see
     // http://plnkr.co/edit/lj9srM2KXZmwmTxLb1p7?p=preview
-    var useNgMockE2E = false;
+    var useNgMockE2E = true;
     function httpBackendDecorator($delegate) {
         var proxy = function (method, url, data, callback, headers) {
             var interceptor = function () {
@@ -73,58 +73,56 @@
         var nextRequestData = null;
         var pendingHttpRequestPromise = null;
         var deferred = null;
-        return {
-            sendRequest: function (config) {
-                console.log("sendRequest (" + config.clickTime + ")");
-                if (pendingHttpRequestPromise !== null) {
-                    if (deferred !== null) {
-                        console.log('deferred.reject 1');
-                        deferred.reject();
-                    }
-                    nextRequestData = angular.copy(config);
-                    deferred = $q.defer();
-                    return deferred.promise;
-                } else {
-                    config.transformResponse = function (data) {
-                        console.log("TransformResponse");
-                        if (deferred !== null) {
-                            data = 'ignore';
-                        }
-                        return data;
-                    };
-                    console.log("$http.get (" + config.clickTime + ")");
-                    pendingHttpRequestPromise = $http.get("index.html", config);
-                    var requestSenderService = this;
-                    pendingHttpRequestPromise.finally(function () {
-                        console.log('pendingRequest.finally');
-                        pendingHttpRequestPromise = null;
-                        if (deferred !== null) {
-                            var d2 = deferred;
-                            deferred = null;
-                            var promise = requestSenderService.sendRequest(nextRequestData);
-                            promise.then(function (result) {
-                                console.log('deferred.resolve');
-                                d2.resolve(result);
-                            }, function (reason) {
-                                console.log('deferred.reject 2');
-                                d2.reject(reason);
-                            });
-                            promise.finally(function () {
-                                console.log('cleanup');
-                                nextRequestData = null;
-                                deferred = null;
-                            });
-                        }
-                    });
-                    return pendingHttpRequestPromise;
+        this.sendRequest = function (config) {
+            console.log("sendRequest (" + config.clickTime + ")");
+            if (pendingHttpRequestPromise !== null) {
+                if (deferred !== null) {
+                    console.log('deferred.reject 1');
+                    deferred.reject();
                 }
+                nextRequestData = angular.copy(config);
+                deferred = $q.defer();
+                return deferred.promise;
+            } else {
+                config.transformResponse = function (data) {
+                    console.log("TransformResponse");
+                    if (deferred !== null) {
+                        data = 'ignore';
+                    }
+                    return data;
+                };
+                console.log("$http.get (" + config.clickTime + ")");
+                pendingHttpRequestPromise = $http.get("index.html", config);
+                var requestSenderService = this;
+                pendingHttpRequestPromise.finally(function () {
+                    console.log('pendingRequest.finally');
+                    pendingHttpRequestPromise = null;
+                    if (deferred !== null) {
+                        var d2 = deferred;
+                        deferred = null;
+                        var promise = requestSenderService.sendRequest(nextRequestData);
+                        promise.then(function (result) {
+                            console.log('deferred.resolve');
+                            d2.resolve(result);
+                        }, function (reason) {
+                            console.log('deferred.reject 2');
+                            d2.reject(reason);
+                        });
+                        promise.finally(function () {
+                            console.log('cleanup');
+                            nextRequestData = null;
+                            deferred = null;
+                        });
+                    }
+                });
+                return pendingHttpRequestPromise;
             }
-        };
+        }
     }
     var dependents = useNgMockE2E ? ["ngMockE2E"] : [];
     angular.module("exampleApp", dependents)
         .config(appConfig)
         .run(appRun)
         .controller("defaultCtrl", defaultController)
-        .factory("requestSender", requestSender);
+        .service("requestSender", requestSender);
 })();
