@@ -1,16 +1,24 @@
 describe("Request Queue Service", function () {
     beforeEach(angular.mock.module("exampleApp"));
-    it('one click', angular.mock.inject(function ($httpBackend, requestSender) {
+    it('one click', angular.mock.inject(function ($httpBackend, $log, requestSender) {
         var data = 'one click';
         $httpBackend.expect("GET", "index.html").respond(data);
         var promise = requestSender.sendRequest({clickTime: 1});
         $httpBackend.flush();
         promise.then(function (response) {
             expect(response.data).toBe(data);
+            expect(response.config.clickTime).toBe(1);
         });
         $httpBackend.verifyNoOutstandingExpectation();
+        var expectedLogs = [
+            ['sendRequest (1)'],
+            ['$http.get (1)'],
+            ['TransformResponse'],
+            ['pendingRequest.finally']
+        ];
+        expect($log.log.logs).toEqual(expectedLogs);
     }));
-    it('two slow clicks', angular.mock.inject(function ($httpBackend, requestSender) {
+    it('two slow clicks', angular.mock.inject(function ($httpBackend, $log,requestSender) {
         var data = 'two slow clicks';
         $httpBackend.expect("GET", "index.html").respond(data);
         var promise1 = requestSender.sendRequest({clickTime: 1});
@@ -20,11 +28,19 @@ describe("Request Queue Service", function () {
         $httpBackend.flush();
         promise1.then(function (response) {
             expect(response.data).toBe(data);
+            expect(response.config.clickTime).toBe(1);
         });
         promise2.then(function (response) {
             expect(response.data).toBe(data);
+            expect(response.config.clickTime).toBe(2);
         });
         $httpBackend.verifyNoOutstandingExpectation();
+        var expectedLogs = [
+            ['sendRequest (1)'], ['$http.get (1)'], ['TransformResponse'],
+            ['pendingRequest.finally'], ['sendRequest (2)'], ['$http.get (2)'],
+            ['TransformResponse'], ['pendingRequest.finally']
+        ];
+        expect($log.log.logs).toEqual(expectedLogs);
     }));
     it('two fast clicks', angular.mock.inject(function ($httpBackend, requestSender) {
         var data = 'two fast clicks';
@@ -38,6 +54,7 @@ describe("Request Queue Service", function () {
         });
         promise2.then(function (response) {
             expect(response.data).toBe(data);
+            expect(response.config.clickTime).toBe(2);
         });
         $httpBackend.verifyNoOutstandingExpectation();
     }));
@@ -59,6 +76,7 @@ describe("Request Queue Service", function () {
         });
         promise3.then(function (response) {
             expect(response.data).toBe(data);
+            expect(response.config.clickTime).toBe(3);
         });
         $httpBackend.verifyNoOutstandingExpectation();
     }));
@@ -80,6 +98,7 @@ describe("Request Queue Service", function () {
         });
         promise3.then(function (response) {
             expect(response.data).toBe(data);
+            expect(response.config.clickTime).toBe(3);
         });
         $httpBackend.verifyNoOutstandingExpectation();
     }));
