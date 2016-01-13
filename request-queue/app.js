@@ -43,12 +43,12 @@
             var promise = requestSender.sendRequest(config);
             if (promise !== null) {
                 promise.then(function (response) {
-                    console.log("Success " + response.config.clickTime + " " + response.data);
+                    $log.log("Success " + response.config.clickTime + " " + response.data);
                 }, function () {
-                    console.log("Error");
+                    $log.log("Error");
                 });
             } else {
-                console.log("Error Error Error: null promise returned");
+                $log.log("Error Error Error: null promise returned");
             }
         };
         $scope.clickTwice = function () {
@@ -84,11 +84,12 @@
                     deferred.reject();
                 }
                 nextRequestData = angular.copy(config);
+                $log.log("$q.defer (" + config.clickTime + ")");
                 deferred = $q.defer();
                 return deferred.promise;
             } else {
                 config.transformResponse = function (data) {
-                    $log.log("TransformResponse");
+                    $log.log("TransformResponse "+data);
                     if (deferred !== null) {
                         data = 'ignore';
                     }
