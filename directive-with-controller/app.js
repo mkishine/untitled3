@@ -36,4 +36,22 @@ angular.module("directiveWithControllerApp", [])
                 }
             }
         }
+    })
+    .directive("resetTotals", function () {
+        return {
+            scope: {
+                data: "=productData",
+                propname: "@propertyName"
+            },
+            template: document.querySelector("#resetTemplate").outerText,
+            require: "^productTable",
+            link: function (scope, element, attrs, ctrl) {
+                scope.reset = function () {
+                    for (var i = 0; i < scope.data.length; i++) {
+                        scope.data[i][scope.propname] = 0;
+                    }
+                    ctrl.updateTotal();
+                }
+            }
+        }
     });

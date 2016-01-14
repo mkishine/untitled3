@@ -12,6 +12,11 @@
         <td><input ng-model='item.quantity' /></td>
     </script>
     <!---------------------->
+    <!--Another Directive Template-->
+    <script type="text/ng-template" id="resetTemplate">
+        <td colspan="2"><button ng-click="reset()">Reset</button></td>
+    </script>
+    <!---------------------->
 </head>
 <body ng-controller="defaultCtrl">
     <div class="panel panel-default">
@@ -25,6 +30,8 @@
                 <tr><th>Name</th><th>Quantity</th></tr>
                 <tr ng-repeat="item in products" product-item></tr>
                 <tr><th>Total:</th><td>{{totalValue}}</td></tr>
+
+                <tr reset-totals product-data="products" property-name="quantity"></tr>
 
             </table>
 
