@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html ng-app="directiveWithControllerApp">
+<head>
+    <title>directive-with-controller</title>
+    <link href="bootstrap.css" rel="stylesheet" />
+    <link href="bootstrap-theme.css" rel="stylesheet" />
+    <script src="angular.js"></script>
+    <script src="app.js"></script>
+</head>
+<body ng-controller="defaultCtrl as defCtrl">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div>Controller.portCreateMode: <b>{{ portCreateMode }}</b></div>
+            <hr>
+            <div><u>Directive template (based on controller's portCreateMode):</u><div>
+
+            <port-creator   mode="portCreateMode"
+                            portfolio-data-promise="portfolioPromise">
+            </port-creator>
+
+            <hr>
+            {{ result }}
+
+            <hr>
+            <button class="btn btn-default" ng-click="toggleViewMode()">Toggle View / Simulate result of user click in portCreator view</button>
+        </div>
+    </div>
+</body>
+</html>
