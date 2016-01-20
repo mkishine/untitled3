@@ -19,20 +19,31 @@
         return proxy;
     }
 
-    function appConfig($provide) {
+    function setupHttpBackendTimeout($provide) {
         if ( !useNgMockE2E ) {
             return;
         }
         $provide.decorator('$httpBackend', httpBackendDecorator);
     }
 
-    function appRun($httpBackend) {
+    function configureExpertOptions(expertOptionsProvider) {
+        // http://stackoverflow.com/questions/979975/how-to-get-the-value-from-the-url-parameter
+        var regex = new RegExp(/[\\?&]debug=([^&#]*)/);
+        var results = regex.exec(location.href);
+        var debugStr = results == null ? '' : results[1];
+        expertOptionsProvider.setDebugFlags(debugStr);
+    }
+
+    function setupHttpBackend($httpBackend) {
         if ( !useNgMockE2E ) {
             return;
         }
         $httpBackend.whenGET('index.html').respond(function () {
             return [200, '', {}];
         });
+    }
+    function setupRequestSenderDebug(requestSender) {
+        requestSender.setupDebug();
     }
 
     function defaultController($scope, $log, requestSender) {
@@ -72,48 +83,68 @@
             }, delay);
         };
     }
-    function requestSender($http, $q, $log) {
+    function requestSender($http, $q, $log, expertOptions) {
         var nextRequestData = null;
         var pendingHttpRequestPromise = null;
         var deferred = null;
+        var debug = false;
+        var requestSender = this;
+        function trace(msg) {
+            if ( debug ) {
+                $log.log(msg);
+            }
+        }
+        this.debugEnabled = function(setting) {
+            if (angular.isDefined(setting)) {
+                debug = setting;
+                return this;
+            } else {
+                return debug;
+            }
+        };
+        this.setupDebug = function() {
+            expertOptions.addDebugFlagWatcher('requestSender', function(setting){
+                requestSender.debugEnabled(setting);
+            });
+        };
         this.sendRequest = function (config) {
-            $log.log("sendRequest (" + config.clickTime + ")");
+            trace("sendRequest (" + config.clickTime + ")");
             if (pendingHttpRequestPromise !== null) {
                 if (deferred !== null) {
-                    $log.log('deferred.reject');
+                    trace('deferred.reject');
                     deferred.reject();
                 }
                 nextRequestData = angular.copy(config);
-                $log.log("$q.defer (" + config.clickTime + ")");
+                trace("$q.defer (" + config.clickTime + ")");
                 deferred = $q.defer();
                 return deferred.promise;
             } else {
                 config.transformResponse = function (data) {
-                    $log.log("TransformResponse "+data);
+                    trace("TransformResponse "+data);
                     if (deferred !== null) {
                         data = 'ignore';
                     }
                     return data;
                 };
-                $log.log("$http.get (" + config.clickTime + ")");
+                trace("$http.get (" + config.clickTime + ")");
                 pendingHttpRequestPromise = $http.get("index.html", config);
                 var requestSenderService = this;
                 pendingHttpRequestPromise.finally(function () {
-                    $log.log('pendingRequest.finally');
+                    trace('pendingRequest.finally');
                     pendingHttpRequestPromise = null;
                     if (deferred !== null) {
                         var d2 = deferred;
                         deferred = null;
                         var promise = requestSenderService.sendRequest(nextRequestData);
                         promise.then(function (result) {
-                            $log.log('d2.resolve');
+                            trace('d2.resolve');
                             d2.resolve(result);
                         }, function (reason) {
-                            $log.log('d2.reject');
+                            trace('d2.reject');
                             d2.reject(reason);
                         });
                         promise.finally(function () {
-                            $log.log('cleanup');
+                            trace('cleanup');
                             nextRequestData = null;
                             deferred = null;
                         });
@@ -123,10 +154,45 @@
             }
         }
     }
-    var dependents = useNgMockE2E ? ["ngMockE2E"] : [];
-    angular.module("exampleApp", dependents)
-        .config(appConfig)
-        .run(appRun)
-        .controller("defaultCtrl", defaultController)
-        .service("requestSender", requestSender);
+    function expertOptions() {
+        var debugFlags = {};
+        var debugCallbacks = [];
+        function _setDebugFlags(flags) {
+            debugFlags = {};
+            decodeURIComponent(flags).split(/[ +]/).forEach(function(flag){debugFlags[flag] = 1;});
+            debugCallbacks.forEach(function(e){e.callback(e.key in debugFlags)});
+        }
+        return {
+            // this is called by expertOptionsProvider, and sets debug flags from URL debug parameter
+            setDebugFlags: function(flags) {
+                _setDebugFlags(flags);
+            },
+            $get: function(){
+                return {
+                    // In order to use expertOptions
+                    // [1] Create a debug varible
+                    // [2] During module.run() call expertOptions.addDebugFlagWatcher(function(value){debug=value;})
+                    addDebugFlagWatcher: function(key, callback){
+                        debugCallbacks.push({key: key, callback: callback});
+                        callback(key in debugFlags);
+                    },
+                    // enable debugging at run time using something like this:
+                    // angular.element(document.body).injector().get('expertOptions').setDebugFlags('requestSender')
+                    setDebugFlags: function(flags) {
+                        _setDebugFlags(flags);
+                    }
+                };
+            }
+        };
+    }
+    var dependents = useNgMockE2E ? ['ngMockE2E'] : [];
+    angular.module('exampleApp', dependents)
+        .config(setupHttpBackendTimeout)
+        .run(setupHttpBackend)
+        .controller('defaultCtrl', defaultController)
+        .service('requestSender', requestSender)
+        .provider('expertOptions', expertOptions)
+        .config(configureExpertOptions)
+        .run(setupRequestSenderDebug)
+    ;
 })();

@@ -1,5 +1,8 @@
 describe("Request Queue Service", function () {
     beforeEach(angular.mock.module("exampleApp"));
+    beforeEach(angular.mock.inject(function(requestSender){
+        requestSender.debugEnabled(true);
+    }));
     it('one click', angular.mock.inject(function ($httpBackend, $log, requestSender) {
         $httpBackend.expect("GET", "index.html").respond('one click');
         var promise = requestSender.sendRequest({clickTime: 1});
