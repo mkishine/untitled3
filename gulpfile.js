@@ -52,6 +52,12 @@ gulp.task('test_request_queue', function (done) {
         singleRun: true
     }, done).start();
 });
+gulp.task('test_scope_watch', function (done) {
+    new Server({
+        configFile: __dirname + '/testing-scope-watch/karma.config.js',
+        singleRun: true
+    }, done).start();
+});
 /**
  * Watch for file changes and re-run tests on each change
  */
