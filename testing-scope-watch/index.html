@@ -1,0 +1,15 @@
+﻿<!DOCTYPE html>
+<html ng-app="exampleApp">
+<head>
+    <title>Example</title>
+    <script src="angular.js"></script>
+    <script src="app.js"></script>
+</head>
+<body ng-controller="defaultCtrl as ctrl">
+<p>
+    <button class="btn btn-primary" ng-click="ctrl.incrementCounter()">Increment</button>
+</p>
+<p>Counter: {{ctrl.counter}}</p>
+<p>Another Counter: {{ctrl.anotherCounter}}</p>
+</body>
+</html>
