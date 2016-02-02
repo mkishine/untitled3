@@ -71,7 +71,7 @@ module.exports = function(config) {
     // Jasmine-specific options
     client: {
       // The pattern string will be passed to mocha
-      args: ['--grep', 'Increments another counter'],
+      args: ['--grep', ''],
     }
   })
 }
