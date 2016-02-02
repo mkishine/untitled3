@@ -8,7 +8,8 @@ describe("Controller", function () {
 
     beforeEach(angular.mock.inject(function ($controller, $rootScope) {
         mockScope = $rootScope.$new();
-        ctrl = $controller("defaultCtrl", {$scope: mockScope});
+        ctrl = $controller("defaultCtrl as ctrl", {$scope: mockScope});
+        ctrl.mockScope = mockScope;
     }));
 
     // Act and Assess
@@ -23,7 +24,7 @@ describe("Controller", function () {
 
     it("Increments another counter", function () {
         ctrl.incrementCounter();
-        mockScope.$digest();
+        ctrl.mockScope.$digest();
         expect(ctrl.anotherCounter).toEqual(2);
     });
 });
