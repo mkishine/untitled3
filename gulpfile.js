@@ -139,3 +139,15 @@ gulp.task('protractor', function() {
         }))
         .on('error', function(e) { throw e })
 });
+
+gulp.task('protractor-uib-tooltip-demo', function() {
+    var protractor = require("gulp-protractor").protractor;
+
+    gulp.src(["./uib-tooltip-demo/spec.js"])
+        .pipe(protractor({
+            configFile: "./uib-tooltip-demo/conf.js",
+            //args: ['--baseUrl', 'http://127.0.0.1:8000']
+        }))
+        .on('error', function(e) { throw e })
+});
+//
