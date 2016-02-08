@@ -7,11 +7,10 @@
             c.anotherCounter = 0;
             c.incrementCounter = function () {
                 c.counter++;
-            }
+            };
             $scope.$watch('ctrl.counter', function (newValue) {
-                c.anotherCounter = newValue*2;
+                c.anotherCounter = newValue * 2;
             });
         })
     ;
-
 })();
