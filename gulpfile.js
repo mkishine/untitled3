@@ -157,3 +157,11 @@ gulp.task('protractor-uib-typeahead-demo', function() {
         }))
         .on('error', function(e) { throw e })
 });
+gulp.task('protractor-blob-download', function() {
+    var protractor = require("gulp-protractor").protractor;
+    gulp.src(["./blob-download/spec.js"])
+        .pipe(protractor({
+            configFile: "./blob-download/conf.js",
+        }))
+        .on('error', function(e) { throw e })
+});
