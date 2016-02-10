@@ -1,13 +1,17 @@
-// extended example:
-// https://github.com/angular/protractor/blob/master/docs/referenceConf.js
+'use strict';
 exports.config = {
+    directConnect: true,
     framework: 'jasmine2',
 
+    capabilities: {
+        'browserName': 'chrome',
+        chromeOptions: {
+            binary: 'C:/Program Files (x86)/Google Chrome (Local)/chrome.exe',
+            args: ['--ssl-version-min=tls1', '--ssl-version-fallback-min=tls1', '--no-default-browser-check'],
+            extensions: []
+        }
+    },
     specs: [
         'spec.js'
-    ],
-
-    capabilities: {
-        'browserName': 'chrome'
-    },
-}
+    ]
+};
